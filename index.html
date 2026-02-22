@@ -6,118 +6,227 @@
   <meta name="theme-color" content="#ffffff" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <!-- Better title font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <title>Schema Ferie</title>
   <style>
     :root{
       --bg:#ffffff;
       --text:#0f172a;
-      --muted:#64748b;
-      --border:#cbd5e1;
+      --muted:#475569;
       --border2:#e2e8f0;
-      --accent:#2563eb;
+      --accent:#1d4ed8;
 
-      --event-fair:#a855f7;
+      --event-fair:#7c3aed;
       --event-inv:#f59e0b;
       --event-closure:#ef4444;
       --event-other:#10b981;
 
-      --weekend:#f8fafc;
-      --holiday:#fff7ed;
-      --danger:#ef4444;
+      --weekend:#dbeafe;   /* brighter */
+      --holiday:#ffe4e6;   /* pastel */
+      --today:#dcfce7;
+
+      --danger:#dc2626;
       --ok:#16a34a;
+
+      --shadow: 0 8px 22px rgba(15,23,42,.08);
     }
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       background: var(--bg);
       color: var(--text);
     }
     button,input,select,textarea{font:inherit}
-    .container{width:min(1200px,96vw);margin:14px auto 24px}
+    .container{width:min(1680px,99vw);margin:12px auto 24px}
+
     .header{
       position:sticky;top:0;z-index:10;
-      background: rgba(255,255,255,.92);
-      backdrop-filter: blur(8px);
-      border-bottom:1px solid var(--border);
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--border2);
     }
     .headerInner{
-      width:min(1200px,96vw);
+      width:min(1680px,99vw);
       margin:0 auto;
       padding:10px 14px;
       display:flex;align-items:center;justify-content:space-between;gap:12px;
     }
-    .brand{display:flex;align-items:center;gap:10px;font-weight:900}
-    .dot{width:10px;height:10px;border-radius:999px;background:var(--accent)}
+    .brand{
+      display:flex;align-items:baseline;gap:10px;
+    }
+    .dot{width:10px;height:10px;border-radius:999px;background:var(--accent); transform: translateY(-3px);}
+    .brandTitle{
+      font-family: Fraunces, Inter, ui-sans-serif, system-ui;
+      font-weight: 700;
+      letter-spacing: .2px;
+      font-size: 20px;
+      line-height: 1;
+    }
+    .brandSub{
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      margin-left: 2px;
+    }
+
     .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .field{display:flex;flex-direction:column;gap:6px;min-width:130px}
+    .field{display:flex;flex-direction:column;gap:6px;min-width:120px}
     label{color:var(--muted);font-size:12px}
     input,select,textarea{
-      background:#fff;border:1px solid var(--border);
+      background:#fff;border:1px solid var(--border2);
       border-radius:10px;color:var(--text);
       padding:9px 10px;outline:none;
     }
-    input:focus,select:focus,textarea:focus{border-color: rgba(37,99,235,.55); box-shadow: 0 0 0 3px rgba(37,99,235,.12);}
+    input:focus,select:focus,textarea:focus{border-color: rgba(29,78,216,.55); box-shadow: 0 0 0 3px rgba(29,78,216,.12);}
     button{
-      background:#fff;border:1px solid var(--border);
+      background:#fff;border:1px solid var(--border2);
       color:var(--text);padding:9px 10px;border-radius:10px;cursor:pointer;
+      box-shadow: 0 1px 0 rgba(15,23,42,.04);
     }
-    button.primary{border-color: rgba(37,99,235,.55); box-shadow: 0 0 0 3px rgba(37,99,235,.10);}
-    button.danger{border-color: rgba(239,68,68,.55); box-shadow: 0 0 0 3px rgba(239,68,68,.10);}
+    button.primary{border-color: rgba(29,78,216,.55); box-shadow: 0 0 0 3px rgba(29,78,216,.10);}
+    button.danger{border-color: rgba(220,38,38,.55); box-shadow: 0 0 0 3px rgba(220,38,38,.10);}
     .pill{
       display:inline-flex;align-items:center;gap:8px;
       padding:6px 10px;border-radius:999px;
-      border:1px solid var(--border);
+      border:1px solid var(--border2);
       background:#fff;
       font-size:12px;
     }
     .muted{color:var(--muted)}
     .small{font-size:12px}
 
-    .layout{display:grid;grid-template-columns:1fr;gap:14px}
-    @media (min-width: 980px){ .layout{grid-template-columns: 1.7fr 1fr; align-items:start;} }
-
     .panel{
-      border:1px solid var(--border);
+      border:1px solid var(--border2);
       border-radius:14px;
       background:#fff;
       padding:12px;
+      box-shadow: var(--shadow);
     }
 
-    .yearWrap{overflow:auto;border-radius:14px;border:1px solid var(--border)}
+    /* Hamburger + right drawer */
+    .hamburger{
+      width:40px;height:40px;border-radius:12px;
+      display:inline-flex;align-items:center;justify-content:center;
+    }
+    .hamburger svg{width:18px;height:18px}
+    .drawerOverlay{
+      position:fixed; inset:0;
+      background: rgba(15,23,42,.30);
+      z-index:80;
+      display:none;
+    }
+    .drawer{
+      position:fixed;
+      top:0; right:0;
+      height:100vh;
+      width:min(380px, 92vw);
+      background:#fff;
+      border-left:1px solid var(--border2);
+      box-shadow: -12px 0 30px rgba(15,23,42,.12);
+      padding:12px;
+      z-index:90;
+      transform: translateX(102%);
+      transition: transform .18s ease;
+      overflow:auto;
+    }
+    .drawer.open{transform: translateX(0);}
+    .drawerOverlay.open{display:block;}
+    .drawerHeader{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+      padding-bottom:10px;
+      border-bottom:1px solid var(--border2);
+      margin-bottom:10px;
+    }
+    .drawerHeader b{font-size:16px}
+    .drawerGroup{padding:10px 0;border-bottom:1px solid var(--border2)}
+    .drawerGroup:last-child{border-bottom:none}
+    .drawerBtns{display:flex;flex-direction:column;gap:8px}
+    .drawerBtns button{width:100%;text-align:left}
+    .drawerNote{color:var(--muted);font-size:12px;margin-top:8px}
+
+    /* Calendar */
+    .yearWrap{overflow:auto;border-radius:14px;border:1px solid var(--border2)}
     table.year{
       width:100%;
-      border-collapse:separate;
-      border-spacing:0;
-      min-width: 1050px;
+      border-collapse:collapse;
+      min-width: 1320px;
       background:#fff;
     }
     .year th,.year td{
       border-bottom:1px solid var(--border2);
       border-right:1px solid var(--border2);
       padding:0;text-align:center;vertical-align:middle;
+      height:26px;
     }
-    .year th{
+    .year td{ position:relative; }
+
+/* Full-cell paints (cover borders too) */
+.year td.bg-weekend::before,
+.year td.bg-holiday::before,
+.year td.bg-today::before{
+  content:'';
+  position:absolute;
+  inset:-1px; /* cover border lines */
+  pointer-events:none;
+  z-index:0;
+}
+.year td.bg-weekend::before{ background: var(--weekend); }
+.year td.bg-holiday::before{ background: var(--holiday); }
+.year td.bg-today::before{ background: var(--today); }
+
+/* Selection overlays (above day-type paint, still below content) */
+.year th{
       position:sticky;top:0;z-index:2;
       background:#fff;
-      font-size:12px;color:var(--muted);height:34px;
+      font-size:12px;color:var(--muted);height:30px;
     }
     .year th:first-child{left:0;z-index:3;}
     .year td:first-child{
       position:sticky;left:0;z-index:1;
       background:#fff;
       color:var(--muted);
-      font-size:12px;width:52px;
+      font-size:12px;width:56px;
     }
+
+    /* color fills the full td now */
+    /* selection overlays: fill whole cell (keeps weekend/holiday tint under) */
+td.sel-ferie::after{content:'';position:absolute;inset:0;background:rgba(34,197,94,.22);pointer-events:none;}
+    td.sel-rol::after{content:'';position:absolute;inset:0;background:rgba(234,179,8,.22);pointer-events:none;}
+
+/* holiday icon (only) */
+.holidayIcon{
+  position:absolute;
+  bottom:2px; right:3px;
+  width:18px; height:18px;
+  border-radius:999px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px;
+  line-height:1;
+  background: rgba(255,255,255,.8);
+  border:1px dashed rgba(15,23,42,.28);
+  color:#7f1d1d;
+  pointer-events:none;
+}
+
     .dayCell{
-      height:30px;width:78px;
+      min-height:26px;
+      width:100%;
+      height:100%;
       position:relative;
       user-select:none;
       cursor:pointer;
+      background: transparent; /* let td paint */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:1;
     }
+    .dayCell:hover{ outline:2px solid rgba(29,78,216,.22); outline-offset:-2px; }
     .dayCell.disabled{cursor:default;opacity:.25;}
-    .bg-weekend{background: var(--weekend);}
-    .bg-holiday{background: var(--holiday);}
 
     .sel{font-weight:900;letter-spacing:.1px;}
     .sel.sub{font-weight:900;font-size:12px;}
@@ -125,42 +234,55 @@
     .eventStripe{
       position:absolute; inset:0;
       pointer-events:none;
-      border-top:3px solid transparent;
+      border-top:4px solid transparent;
     }
     .eventLabel{
       position:absolute;
-      bottom:2px; left:2px;
-      max-width: 72px;
-      padding:1px 4px;
+      bottom:2px; left:3px;
+      max-width: 86px;
+      padding:1px 5px;
       font-size:10px;
       line-height:1.2;
-      border-radius:6px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.92);
+      border-radius:8px;
+      border:1px solid rgba(15,23,42,.18);
+      background: rgba(255,255,255,.95);
       overflow:hidden;
       white-space:nowrap;
       text-overflow:ellipsis;
       pointer-events:none;
     }
-    .eventDots{
+        .eventDots{
       position:absolute;
-      top:2px; left:2px;
-      display:flex; gap:3px;
+      top:3px; left:3px;
+      display:flex; gap:4px;
       pointer-events:none;
     }
     .dotMini{
-      width:8px;height:8px;border-radius:999px;
+      width:9px;height:9px;border-radius:999px;
       border:1px solid rgba(15,23,42,.25);
     }
 
+    /* Bottom sections */
+    .bottomArea{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+    }
+    @media (min-width: 980px){
+      .bottomArea{ grid-template-columns: 1.2fr .8fr; }
+    }
+
     dialog{
-      border:1px solid var(--border);
+      border:1px solid var(--border2);
       border-radius:14px;
       padding:12px;
-      width:min(760px, 96vw);
+      width:min(820px, 96vw);
+      box-shadow: var(--shadow);
     }
     dialog::backdrop{ background: rgba(15,23,42,.35); }
     hr.sep{border:none;border-top:1px solid var(--border2);margin:12px 0}
+
     .list{display:flex;flex-direction:column;gap:8px}
     .item{
       border:1px solid var(--border2);
@@ -173,78 +295,161 @@
       align-items:flex-start;
     }
     .item b{display:block}
-  </style>
+
+    .popover{
+      position:fixed;
+      z-index:60;
+      min-width: 240px;
+      border:1px solid var(--border2);
+      border-radius:14px;
+      background:#fff;
+      box-shadow: var(--shadow);
+      padding:10px;
+      display:none;
+    }
+    .popTitle{font-weight:900;margin-bottom:8px}
+    .popGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:8px;
+    }
+    .popBtn{
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--border2);
+      background:#fff;
+      cursor:pointer;
+      text-align:left;
+    }
+    .popBtn:hover{border-color: rgba(29,78,216,.55); box-shadow: 0 0 0 3px rgba(29,78,216,.10);}
+    .popBtn small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+    .popFooter{margin-top:10px;display:flex;gap:8px;justify-content:flex-end}
+  button:focus{ outline:none; }
+button:focus-visible{
+  outline: 3px solid rgba(29,78,216,.18);
+  outline-offset: 2px;
+  border-color: rgba(29,78,216,.45);
+}
+
+.dialogActions{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+.dialogActions button{padding:10px 12px;}
+
+</style>
 </head>
 <body>
   <div class="header">
     <div class="headerInner">
-      <div class="brand"><span class="dot"></span><span>Schema Ferie</span></div>
-      <div class="row">
-        <div class="field" style="min-width:120px">
-          <label>Anno</label>
-          <input id="yearInput" type="number" />
+      <div class="brand">
+        <span class="dot"></span>
+        <div>
+          <div class="brandTitle">Schema Ferie</div>
+          <div class="brandSub">Calendario • ferie/ROL • eventi</div>
         </div>
+      </div>
+
+      <button class="hamburger" id="btnMenu" aria-label="Apri menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M4 6h16"></path>
+          <path d="M4 12h16"></path>
+          <path d="M4 18h16"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Drawer -->
+  <div class="drawerOverlay" id="drawerOverlay"></div>
+  <aside class="drawer" id="drawer">
+    <div class="drawerHeader">
+      <b>Menu</b>
+      <button id="btnMenuClose">Chiudi</button>
+    </div>
+
+    <div class="drawerGroup">
+      <div class="field" style="min-width:unset">
+        <label>Anno</label>
+        <input id="yearInput" type="number" />
+      </div>
+      <div class="drawerNote">Cambiare anno carica eventi e selezioni di quell’anno.</div>
+    </div>
+
+    <div class="drawerGroup">
+      <div class="drawerBtns">
         <button id="btnEvents">Eventi</button>
         <button id="btnSettings">Impostazioni</button>
         <button id="btnBackup">Backup</button>
+        <button class="primary" id="btnRefresh">Aggiorna</button>
       </div>
+      <div class="drawerNote">Il calendario resta pulito: controlli qui a destra.</div>
+      <div class="drawerNote" style="margin-top:10px"><b>Build:</b> v8</div><div class="drawerNote" style="margin-top:10px">Made with ❤️ by DF</div>
     </div>
-  </div>
+  </aside>
 
   <div class="container">
-    <div class="layout">
+    <div class="panel">
+      <div class="row" style="justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <div>
+          <div id="titleYear" style="font-weight:900;font-size:18px">Anno</div>
+          <div class="muted small">Click su un giorno → scegli cosa inserire (popup). Festività: anche in cella (testo breve).</div>
+        </div>
+      </div>
+      <div id="grid"></div>
+    </div>
+
+    <div class="bottomArea">
+      <div class="panel" id="totals"></div>
+
       <div class="panel">
-        <div class="row" style="justify-content:space-between;align-items:baseline;margin-bottom:8px">
-          <div>
-            <div id="titleYear" style="font-weight:900;font-size:18px">Anno</div>
-            <div class="muted small">Click giorno: vuoto → X → X½ → R → R½ → vuoto • Eventi: barra colorata + etichetta all’inizio</div>
-          </div>
-          <button class="primary" id="btnRefresh">Aggiorna</button>
+        <div style="font-weight:900;font-size:16px;margin-bottom:8px">Legenda</div>
+        <div class="row">
+          <span class="pill"><b>X</b> Ferie</span>
+          <span class="pill"><b>R</b> ROL</span>
+          <span class="pill"><b>½</b> mezza</span>
+          <span class="pill"><b>Ferie</b> 1 giorno = <b>1.2</b></span>
         </div>
-        <div id="grid"></div>
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <div class="panel" id="totals"></div>
-
-        <div class="panel">
-          <div style="font-weight:900;font-size:16px;margin-bottom:8px">Legenda</div>
-          <div class="row">
-            <span class="pill"><b>X</b> Ferie</span>
-            <span class="pill"><b>R</b> ROL</span>
-            <span class="pill"><b>½</b> mezza</span>
-          </div>
-          <div style="height:8px"></div>
-          <div class="row">
-            <span class="pill"><span style="display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--event-fair)"></span> Fiera</span>
-            <span class="pill"><span style="display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--event-inv)"></span> Inventario</span>
-            <span class="pill"><span style="display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--event-closure)"></span> Chiusura</span>
-            <span class="pill"><span style="display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--event-other)"></span> Altro</span>
-          </div>
-          <div style="height:8px"></div>
-          <div class="muted small">Gli eventi non bloccano nulla: sono solo contesto.</div>
+        <div style="height:8px"></div>
+        <div class="row">
+          <span class="pill"><span style="display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--event-fair)"></span> Fiera</span>
+          <span class="pill"><span style="display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--event-inv)"></span> Inventario</span>
+          <span class="pill"><span style="display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--event-closure)"></span> Chiusura</span>
+          <span class="pill"><span style="display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--event-other)"></span> Altro</span>
         </div>
-
-        <div class="panel" id="eventsPreview"></div>
+        <div style="height:8px"></div>
+        <div class="muted small">Weekend e festività sono solo contesto: non influenzano la conta.</div>
       </div>
+    </div>
+
+    <div class="panel" id="eventsPreview" style="margin-top:14px"></div>
+  </div>
+
+  <!-- Day popover -->
+  <div class="popover" id="dayPopover" role="dialog" aria-modal="true">
+    <div class="popTitle" id="popTitle">Giorno</div>
+    <div class="popGrid">
+      <button class="popBtn" data-action="FERIE_1"><b>Ferie</b><small>Intera (1.2)</small></button>
+      <button class="popBtn" data-action="FERIE_05"><b>Ferie</b><small>Mezza (0.6)</small></button>
+      <button class="popBtn" data-action="ROL_1"><b>ROL</b><small>Intera (1.0)</small></button>
+      <button class="popBtn" data-action="ROL_05"><b>ROL</b><small>Mezza (0.5)</small></button>
+      <button class="popBtn" data-action="CLEAR"><b>Cancella</b><small>Rimuovi segno</small></button>
+      <button class="popBtn" data-action="CLOSE"><b>Chiudi</b><small>Nessuna azione</small></button>
+    </div>
+    <div class="popFooter">
+      <button id="popClose">Chiudi</button>
     </div>
   </div>
 
+  <!-- dialogs -->
   <dialog id="dlgSettings">
     <div class="row" style="justify-content:space-between;align-items:baseline">
       <div style="font-weight:900;font-size:18px">Impostazioni anno</div>
       <button id="closeSettings">Chiudi</button>
     </div>
     <hr class="sep" />
-    <div class="row" style="margin-bottom:12px">
+    <div class="row dialogActions" style="margin-bottom:12px">
       <div class="field"><label>Ferie disponibili</label><input id="ferieTotal" type="number" /></div>
       <div class="field"><label>ROL disponibili</label><input id="rolTotal" type="number" /></div>
     </div>
-    <div class="row">
-      <label class="pill" style="cursor:pointer"><input id="countWeekends" type="checkbox" style="margin-right:8px" />Conta anche weekend</label>
-      <label class="pill" style="cursor:pointer"><input id="countHolidays" type="checkbox" style="margin-right:8px" />Conta anche festività nazionali</label>
-    </div>
-    <div class="muted small" style="margin-top:12px">Festività nazionali + Pasqua/Pasquetta sono calcolate automaticamente.</div>
+    <div class="muted small">Weekend e festività non influenzano la conta.</div>
   </dialog>
 
   <dialog id="dlgEvents">
@@ -285,9 +490,10 @@
       <button id="closeBackup">Chiudi</button>
     </div>
     <hr class="sep" />
-    <div class="row" style="margin-bottom:12px">
+    <div class="row dialogActions" style="margin-bottom:12px">
       <button class="primary" id="exportJson">Export JSON</button>
-      <label class="pill" style="cursor:pointer"><input id="importFile" type="file" accept="application/json" style="display:none" />Import JSON</label>
+      <input id="importFile" type="file" accept="application/json" style="display:none" />
+      <button id="btnImportJson" class="primary">Import JSON</button>
       <button class="danger" id="wipeAll">Cancella dati locali</button>
     </div>
     <div class="muted small" id="backupStatus">I dati sono salvati localmente sul dispositivo (IndexedDB).</div>
@@ -330,6 +536,7 @@
       map.set(ymd(year, easterMon.getUTCMonth()+1, easterMon.getUTCDate()), 'Pasquetta');
       return map;
     }
+
     function eventColor(type){
       const css = getComputedStyle(document.documentElement);
       switch(type){
@@ -397,37 +604,33 @@
     const MONTHS = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
     let year = new Date().getFullYear();
     let settings = null, events = [], selections = [], holidayMap = new Map();
+
     const $ = (id) => document.getElementById(id);
 
     const keySel = (y, date, kind) => `${y}|${date}|${kind}`;
     const uid = () => Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+    const todayYMD = (() => {
+      const d = new Date();
+      return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+    })();
 
     function selectionFor(dateYMD){
       const ferie = selections.find(s => s.year === year && s.date === dateYMD && s.kind === 'FERIE');
       const rol = selections.find(s => s.year === year && s.date === dateYMD && s.kind === 'ROL');
       return { ferie, rol };
     }
-    function nextState(ferie, rol){
-      if (!ferie && !rol) return { kind:'FERIE', amount:1 };
-      if (ferie?.amount === 1) return { kind:'FERIE', amount:0.5 };
-      if (ferie?.amount === 0.5) return { kind:'ROL', amount:1 };
-      if (rol?.amount === 1) return { kind:'ROL', amount:0.5 };
-      return null;
-    }
-    function isCountableDay(dateYMD){
-      const d = toDateUTC(dateYMD);
-      if (!settings.countWeekends && isWeekendUTC(d)) return false;
-      if (!settings.countHolidays && holidayMap.has(dateYMD)) return false;
-      return true;
-    }
+
+    const FERIE_MULT = 1.2;
     function sumKind(kind){
       let total = 0;
       for (const s of selections){
         if (s.year !== year || s.kind !== kind) continue;
-        if (isCountableDay(s.date)) total += s.amount;
+        if (kind === 'FERIE') total += (s.amount * FERIE_MULT);
+        else total += s.amount;
       }
-      return total;
+      return Math.round(total * 10) / 10;
     }
+
     function eventsForDay(dateYMD){
       const t = toDateUTC(dateYMD).getTime();
       return events.filter(ev => {
@@ -437,6 +640,62 @@
       });
     }
     function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+function holidayEmoji(name){
+  const s = String(name || '').toLowerCase();
+  if (s.includes('natale')) return '🎄';
+  if (s.includes('s. stefano') || s.includes('stefano')) return '🎁';
+  if (s.includes('capodanno')) return '🎆';
+  if (s.includes('epifania')) return '⭐';
+  if (s.includes('liberazione')) return '🇮🇹';
+  if (s.includes('lavoro')) return '🛠️';
+  if (s.includes('repubblica')) return '🇮🇹';
+  if (s.includes('ferragosto')) return '🌞';
+  if (s.includes('tutti i santi') || s.includes('santi')) return '😇';
+  if (s.includes('immacolata')) return '🕊️';
+  if (s.includes('pasquetta')) return '🐣';
+  if (s.includes('pasqua')) return '✝️';
+  return '✦';
+}
+        // Popover state
+    const pop = $('dayPopover');
+    let activeDate = null;
+
+    function showPopover(dateYMD, anchorRect){
+      activeDate = dateYMD;
+      $('popTitle').textContent = `Inserisci: ${dateYMD}`;
+      const margin = 10;
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const w = 260, h = 230;
+
+      let left = Math.min(vw - w - margin, Math.max(margin, anchorRect.left));
+      let top = Math.min(vh - h - margin, Math.max(margin, anchorRect.bottom + 8));
+      if (anchorRect.bottom + 8 + h > vh - margin) top = Math.max(margin, anchorRect.top - h - 8);
+
+      pop.style.left = left + 'px';
+      pop.style.top = top + 'px';
+      pop.style.display = 'block';
+    }
+    function hidePopover(){
+      pop.style.display = 'none';
+      activeDate = null;
+    }
+
+    async function applyAction(action){
+      if (!activeDate) return;
+      const date = activeDate;
+
+      await idb.del('selections', keySel(year, date, 'FERIE'));
+      await idb.del('selections', keySel(year, date, 'ROL'));
+
+      if (action === 'FERIE_1') await idb.put('selections', { key: keySel(year,date,'FERIE'), year, date, kind:'FERIE', amount: 1 });
+      if (action === 'FERIE_05') await idb.put('selections', { key: keySel(year,date,'FERIE'), year, date, kind:'FERIE', amount: 0.5 });
+      if (action === 'ROL_1') await idb.put('selections', { key: keySel(year,date,'ROL'), year, date, kind:'ROL', amount: 1 });
+      if (action === 'ROL_05') await idb.put('selections', { key: keySel(year,date,'ROL'), year, date, kind:'ROL', amount: 0.5 });
+
+      await loadYear();
+      renderAll();
+      hidePopover();
+    }
 
     function renderGrid(){
       const wrap = document.createElement('div');
@@ -459,14 +718,17 @@
           const td = document.createElement('td');
           const dim = daysInMonth(year, mi);
           const valid = day <= dim;
+
           const cell = document.createElement('div');
           cell.className = 'dayCell' + (!valid ? ' disabled' : '');
 
           if (valid){
             const date = ymd(year, mi, day);
             const d = toDateUTC(date);
-            if (isWeekendUTC(d)) cell.classList.add('bg-weekend');
-            if (holidayMap.has(date)) cell.classList.add('bg-holiday');
+
+            if (date === todayYMD) td.classList.add('bg-today');
+            if (isWeekendUTC(d)) td.classList.add('bg-weekend');
+            if (holidayMap.has(date)) td.classList.add('bg-holiday');
 
             const dayEvents = eventsForDay(date);
             const stripe = document.createElement('div');
@@ -494,57 +756,59 @@
               }
             }
 
+            if (holidayMap.has(date)){
+              const hi = document.createElement('div');
+              hi.className = 'holidayIcon';
+              hi.textContent = holidayEmoji(holidayMap.get(date));
+              cell.appendChild(hi);
+            }
+
             const { ferie, rol } = selectionFor(date);
-            const center = document.createElement('div');
-            center.style.display = 'flex'; center.style.alignItems = 'center'; center.style.justifyContent = 'center'; center.style.height = '100%';
+            if (ferie) td.classList.add('sel-ferie');
+            if (rol) td.classList.add('sel-rol');
 
             if (ferie){
               const sp = document.createElement('span');
               sp.className = ferie.amount === 0.5 ? 'sel sub' : 'sel';
               sp.textContent = ferie.amount === 0.5 ? 'X½' : 'X';
-              center.appendChild(sp);
+              cell.appendChild(sp);
             } else if (rol){
               const sp = document.createElement('span');
               sp.className = rol.amount === 0.5 ? 'sel sub' : 'sel';
               sp.textContent = rol.amount === 0.5 ? 'R½' : 'R';
-              center.appendChild(sp);
+              cell.appendChild(sp);
             }
-            cell.appendChild(center);
 
             const tips = [];
             if (holidayMap.has(date)) tips.push('Festività: ' + holidayMap.get(date));
             if (dayEvents.length) tips.push(...dayEvents.map(e => `${e.type}: ${e.title}${e.location ? ' ('+e.location+')' : ''}`));
-            if (ferie) tips.push('Ferie: ' + ferie.amount);
+            if (ferie) tips.push(`Ferie: ${ferie.amount} (conteggio ${Math.round(ferie.amount*FERIE_MULT*10)/10})`);
             if (rol) tips.push('ROL: ' + rol.amount);
-            cell.title = tips.join('\n');
+            cell.title = tips.join('\\n');
 
-            cell.addEventListener('click', async () => {
-              const cur = selectionFor(date);
-              const next = nextState(cur.ferie, cur.rol);
-              if (cur.ferie) await idb.del('selections', keySel(year, date, 'FERIE'));
-              if (cur.rol) await idb.del('selections', keySel(year, date, 'ROL'));
-              if (next) await idb.put('selections', { key: keySel(year,date,next.kind), year, date, kind: next.kind, amount: next.amount });
-              await loadYear(); renderAll();
-            });
+            cell.addEventListener('click', () => showPopover(date, cell.getBoundingClientRect()));
           }
 
-          td.appendChild(cell); tr.appendChild(td);
+          td.appendChild(cell);
+          tr.appendChild(td);
         }
         tbody.appendChild(tr);
       }
-      table.appendChild(tbody); wrap.appendChild(table);
-      $('grid').innerHTML = ''; $('grid').appendChild(wrap);
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+      $('grid').innerHTML = '';
+      $('grid').appendChild(wrap);
     }
 
     function renderTotals(){
       const ferieUsed = sumKind('FERIE'), rolUsed = sumKind('ROL');
-      const ferieRem = settings.ferieTotal - ferieUsed;
-      const rolRem = settings.rolTotal - rolUsed;
+      const ferieRem = Math.round((settings.ferieTotal - ferieUsed) * 10) / 10;
+      const rolRem = Math.round((settings.rolTotal - rolUsed) * 10) / 10;
 
       $('totals').innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
           <div style="font-weight:900;font-size:16px">Totali</div>
-          <div class="muted small">${settings.countWeekends ? 'incl. weekend' : 'escl. weekend'} • ${settings.countHolidays ? 'incl. festivi' : 'escl. festivi'}</div>
+          <div class="muted small">Ferie: 1 giorno = 1.2</div>
         </div>
         <hr class="sep" />
         <div class="row">
@@ -563,10 +827,10 @@
 
     function renderEventsPreview(){
       if (!events.length){
-        $('eventsPreview').innerHTML = `<div class="muted small">Nessun evento inserito per questo anno. Premi “Eventi”.</div>`;
+        $('eventsPreview').innerHTML = `<div class="muted small">Nessun evento inserito per questo anno. Apri il menu (☰) → “Eventi”.</div>`;
         return;
       }
-      const sorted = [...events].sort((a,b)=> a.start.localeCompare(b.start)).slice(0,10);
+      const sorted = [...events].sort((a,b)=> a.start.localeCompare(b.start)).slice(0,12);
       const html = sorted.map(ev => `
         <div class="pill" style="justify-content:space-between">
           <span><b>${ev.type}</b> ${escapeHtml(ev.title)}</span>
@@ -586,22 +850,18 @@
       renderGrid(); renderTotals(); renderEventsPreview();
     }
 
-    // dialogs
+    // dialogs helpers
     function fillSettingsDialog(){
       $('ferieTotal').value = String(settings.ferieTotal ?? 0);
       $('rolTotal').value = String(settings.rolTotal ?? 0);
-      $('countWeekends').checked = !!settings.countWeekends;
-      $('countHolidays').checked = !!settings.countHolidays;
     }
     async function saveSettingsFromDialog(){
       settings.ferieTotal = Number($('ferieTotal').value || 0);
       settings.rolTotal = Number($('rolTotal').value || 0);
-      settings.countWeekends = $('countWeekends').checked;
-      settings.countHolidays = $('countHolidays').checked;
       await idb.put('settings', settings);
-      holidayMap = italianNationalHolidays(year);
-      renderAll();
+      renderTotals();
     }
+
     function fillEventsDialog(){
       $('evStart').value = ymd(year,1,1);
       $('evEnd').value = ymd(year,1,1);
@@ -646,7 +906,7 @@
       const settingsAll = await idb.all('settings');
       const eventsAll = await idb.all('events');
       const selectionsAll = await idb.all('selections');
-      const blob = { version: 1, exportedAt: new Date().toISOString(), settings: settingsAll, events: eventsAll, selections: selectionsAll };
+      const blob = { version: 3, exportedAt: new Date().toISOString(), settings: settingsAll, events: eventsAll, selections: selectionsAll };
       const data = new Blob([JSON.stringify(blob, null, 2)], { type:'application/json' });
       const url = URL.createObjectURL(data);
       const a = document.createElement('a');
@@ -659,7 +919,8 @@
     async function importJSON(file){
       const txt = await file.text();
       const parsed = JSON.parse(txt);
-      if (!parsed || parsed.version !== 1) throw new Error('Formato backup non riconosciuto');
+      if (!parsed || ![1,2,3].includes(parsed.version)) throw new Error('Formato backup non riconosciuto');
+
       await tx(['settings','events','selections'], 'readwrite', async (s) => {
         const clear = (store) => new Promise((res, rej) => { const r = store.clear(); r.onsuccess=()=>res(); r.onerror=()=>rej(r.error); });
         await clear(s.settings); await clear(s.events); await clear(s.selections);
@@ -668,6 +929,9 @@
           if (!arr?.length) return res();
           let left = arr.length;
           for (const v of arr){
+            if (store === s.settings){
+              delete v.countWeekends; delete v.countHolidays;
+            }
             const r = store.put(v);
             r.onsuccess = () => { left--; if (left===0) res(); };
             r.onerror = () => rej(r.error);
@@ -678,7 +942,8 @@
         await putMany(s.events, parsed.events || []);
         await putMany(s.selections, parsed.selections || []);
       });
-      $('backupStatus').textContent = 'Import completato. Ricarica se non vedi subito.';
+
+      $('backupStatus').textContent = 'Import completato.';
       await loadYear(); renderAll();
     }
     async function wipeAll(){
@@ -691,25 +956,55 @@
     async function loadYear(){
       settings = await idb.get('settings', year);
       if (!settings){
-        settings = { year, ferieTotal: 0, rolTotal: 0, countWeekends: false, countHolidays: false };
+        settings = { year, ferieTotal: 0, rolTotal: 0 };
+        await idb.put('settings', settings);
+      } else {
+        delete settings.countWeekends; delete settings.countHolidays;
+        if (settings.ferieTotal == null) settings.ferieTotal = 0;
+        if (settings.rolTotal == null) settings.rolTotal = 0;
         await idb.put('settings', settings);
       }
+
       const allEvents = await idb.all('events');
       events = allEvents.filter(e => e.year === year);
+
       const allSel = await idb.all('selections');
       selections = allSel.filter(s => s.year === year);
+
       holidayMap = italianNationalHolidays(year);
     }
 
-    // wire up
-    $('yearInput').value = String(year);
-    $('yearInput').addEventListener('change', async (e) => { year = Number(e.target.value); await loadYear(); renderAll(); });
-    $('btnRefresh').addEventListener('click', async () => { await loadYear(); renderAll(); });
+    // Drawer interactions
+    const drawer = $('drawer');
+    const overlay = $('drawerOverlay');
+    function openDrawer(){
+      overlay.classList.add('open');
+      drawer.classList.add('open');
+    }
+    function closeDrawer(){
+      overlay.classList.remove('open');
+      drawer.classList.remove('open');
+    }
+    $('btnMenu').addEventListener('click', openDrawer);
+    $('btnMenuClose').addEventListener('click', closeDrawer);
+    overlay.addEventListener('click', closeDrawer);
+    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ closeDrawer(); hidePopover(); } });
 
+    // wire up year input (in drawer)
+    $('yearInput').value = String(year);
+    $('yearInput').addEventListener('change', async (e) => {
+      year = Number(e.target.value);
+      await loadYear();
+      renderAll();
+    });
+
+    $('btnRefresh').addEventListener('click', async () => { await loadYear(); renderAll(); closeDrawer(); });
+
+    // dialogs
     const dlgSettings = $('dlgSettings');
     $('btnSettings').addEventListener('click', () => { fillSettingsDialog(); dlgSettings.showModal(); });
     $('closeSettings').addEventListener('click', () => dlgSettings.close());
-    ['ferieTotal','rolTotal','countWeekends','countHolidays'].forEach(id => $(id).addEventListener('change', saveSettingsFromDialog));
+    ['ferieTotal','rolTotal'].forEach(id => $(id).addEventListener('change', saveSettingsFromDialog));
 
     const dlgEvents = $('dlgEvents');
     $('btnEvents').addEventListener('click', () => { fillEventsDialog(); dlgEvents.showModal(); });
@@ -732,6 +1027,8 @@
     $('btnBackup').addEventListener('click', () => { $('backupStatus').textContent = 'I dati sono salvati localmente sul dispositivo (IndexedDB).'; dlgBackup.showModal(); });
     $('closeBackup').addEventListener('click', () => dlgBackup.close());
     $('exportJson').addEventListener('click', exportJSON);
+    const btnImp = document.getElementById('btnImportJson');
+    if (btnImp) btnImp.addEventListener('click', () => document.getElementById('importFile').click());
     $('importFile').addEventListener('change', (e) => {
       const f = e.target.files?.[0];
       if (!f) return;
@@ -740,6 +1037,26 @@
     });
     $('wipeAll').addEventListener('click', wipeAll);
 
+    // popover interactions
+    $('popClose').addEventListener('click', hidePopover);
+    pop.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const action = btn.getAttribute('data-action');
+      if (action === 'CLOSE') return hidePopover();
+      if (action === 'CLEAR') return applyAction('CLEAR');
+      return applyAction(action);
+    });
+    window.addEventListener('scroll', hidePopover, { passive:true });
+    window.addEventListener('resize', hidePopover);
+    document.addEventListener('click', (e) => {
+      if (pop.style.display !== 'block') return;
+      if (pop.contains(e.target)) return;
+      if (e.target.closest && e.target.closest('.dayCell')) return;
+      hidePopover();
+    }, true);
+
+    // init
     await loadYear();
     renderAll();
   </script>
