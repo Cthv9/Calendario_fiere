@@ -1,14 +1,747 @@
 <!doctype html>
 <html lang="it">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0f172a" />
-    <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
-    <title>Schema Ferie</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <title>Schema Ferie</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --border:#cbd5e1;
+      --border2:#e2e8f0;
+      --accent:#2563eb;
+
+      --event-fair:#a855f7;
+      --event-inv:#f59e0b;
+      --event-closure:#ef4444;
+      --event-other:#10b981;
+
+      --weekend:#f8fafc;
+      --holiday:#fff7ed;
+      --danger:#ef4444;
+      --ok:#16a34a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--text);
+    }
+    button,input,select,textarea{font:inherit}
+    .container{width:min(1200px,96vw);margin:14px auto 24px}
+    .header{
+      position:sticky;top:0;z-index:10;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(8px);
+      border-bottom:1px solid var(--border);
+    }
+    .headerInner{
+      width:min(1200px,96vw);
+      margin:0 auto;
+      padding:10px 14px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    .brand{display:flex;align-items:center;gap:10px;font-weight:900}
+    .dot{width:10px;height:10px;border-radius:999px;background:var(--accent)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .field{display:flex;flex-direction:column;gap:6px;min-width:130px}
+    label{color:var(--muted);font-size:12px}
+    input,select,textarea{
+      background:#fff;border:1px solid var(--border);
+      border-radius:10px;color:var(--text);
+      padding:9px 10px;outline:none;
+    }
+    input:focus,select:focus,textarea:focus{border-color: rgba(37,99,235,.55); box-shadow: 0 0 0 3px rgba(37,99,235,.12);}
+    button{
+      background:#fff;border:1px solid var(--border);
+      color:var(--text);padding:9px 10px;border-radius:10px;cursor:pointer;
+    }
+    button.primary{border-color: rgba(37,99,235,.55); box-shadow: 0 0 0 3px rgba(37,99,235,.10);}
+    button.danger{border-color: rgba(239,68,68,.55); box-shadow: 0 0 0 3px rgba(239,68,68,.10);}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid var(--border);
+      background:#fff;
+      font-size:12px;
+    }
+    .muted{color:var(--muted)}
+    .small{font-size:12px}
+
+    .layout{display:grid;grid-template-columns:1fr;gap:14px}
+    @media (min-width: 980px){ .layout{grid-template-columns: 1.7fr 1fr; align-items:start;} }
+
+    .panel{
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:#fff;
+      padding:12px;
+    }
+
+    .yearWrap{overflow:auto;border-radius:14px;border:1px solid var(--border)}
+    table.year{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      min-width: 1050px;
+      background:#fff;
+    }
+    .year th,.year td{
+      border-bottom:1px solid var(--border2);
+      border-right:1px solid var(--border2);
+      padding:0;text-align:center;vertical-align:middle;
+    }
+    .year th{
+      position:sticky;top:0;z-index:2;
+      background:#fff;
+      font-size:12px;color:var(--muted);height:34px;
+    }
+    .year th:first-child{left:0;z-index:3;}
+    .year td:first-child{
+      position:sticky;left:0;z-index:1;
+      background:#fff;
+      color:var(--muted);
+      font-size:12px;width:52px;
+    }
+    .dayCell{
+      height:30px;width:78px;
+      position:relative;
+      user-select:none;
+      cursor:pointer;
+    }
+    .dayCell.disabled{cursor:default;opacity:.25;}
+    .bg-weekend{background: var(--weekend);}
+    .bg-holiday{background: var(--holiday);}
+
+    .sel{font-weight:900;letter-spacing:.1px;}
+    .sel.sub{font-weight:900;font-size:12px;}
+
+    .eventStripe{
+      position:absolute; inset:0;
+      pointer-events:none;
+      border-top:3px solid transparent;
+    }
+    .eventLabel{
+      position:absolute;
+      bottom:2px; left:2px;
+      max-width: 72px;
+      padding:1px 4px;
+      font-size:10px;
+      line-height:1.2;
+      border-radius:6px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.92);
+      overflow:hidden;
+      white-space:nowrap;
+      text-overflow:ellipsis;
+      pointer-events:none;
+    }
+    .eventDots{
+      position:absolute;
+      top:2px; left:2px;
+      display:flex; gap:3px;
+      pointer-events:none;
+    }
+    .dotMini{
+      width:8px;height:8px;border-radius:999px;
+      border:1px solid rgba(15,23,42,.25);
+    }
+
+    dialog{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      width:min(760px, 96vw);
+    }
+    dialog::backdrop{ background: rgba(15,23,42,.35); }
+    hr.sep{border:none;border-top:1px solid var(--border2);margin:12px 0}
+    .list{display:flex;flex-direction:column;gap:8px}
+    .item{
+      border:1px solid var(--border2);
+      border-radius:12px;
+      padding:10px;
+      background:#fff;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .item b{display:block}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="headerInner">
+      <div class="brand"><span class="dot"></span><span>Schema Ferie</span></div>
+      <div class="row">
+        <div class="field" style="min-width:120px">
+          <label>Anno</label>
+          <input id="yearInput" type="number" />
+        </div>
+        <button id="btnEvents">Eventi</button>
+        <button id="btnSettings">Impostazioni</button>
+        <button id="btnBackup">Backup</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="layout">
+      <div class="panel">
+        <div class="row" style="justify-content:space-between;align-items:baseline;margin-bottom:8px">
+          <div>
+            <div id="titleYear" style="font-weight:900;font-size:18px">Anno</div>
+            <div class="muted small">Click giorno: vuoto → X → X½ → R → R½ → vuoto • Eventi: barra colorata + etichetta all’inizio</div>
+          </div>
+          <button class="primary" id="btnRefresh">Aggiorna</button>
+        </div>
+        <div id="grid"></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="panel" id="totals"></div>
+
+        <div class="panel">
+          <div style="font-weight:900;font-size:16px;margin-bottom:8px">Legenda</div>
+          <div class="row">
+            <span class="pill"><b>X</b> Ferie</span>
+            <span class="pill"><b>R</b> ROL</span>
+            <span class="pill"><b>½</b> mezza</span>
+          </div>
+          <div style="height:8px"></div>
+          <div class="row">
+            <span class="pill"><span style="display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--event-fair)"></span> Fiera</span>
+            <span class="pill"><span style="display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--event-inv)"></span> Inventario</span>
+            <span class="pill"><span style="display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--event-closure)"></span> Chiusura</span>
+            <span class="pill"><span style="display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--event-other)"></span> Altro</span>
+          </div>
+          <div style="height:8px"></div>
+          <div class="muted small">Gli eventi non bloccano nulla: sono solo contesto.</div>
+        </div>
+
+        <div class="panel" id="eventsPreview"></div>
+      </div>
+    </div>
+  </div>
+
+  <dialog id="dlgSettings">
+    <div class="row" style="justify-content:space-between;align-items:baseline">
+      <div style="font-weight:900;font-size:18px">Impostazioni anno</div>
+      <button id="closeSettings">Chiudi</button>
+    </div>
+    <hr class="sep" />
+    <div class="row" style="margin-bottom:12px">
+      <div class="field"><label>Ferie disponibili</label><input id="ferieTotal" type="number" /></div>
+      <div class="field"><label>ROL disponibili</label><input id="rolTotal" type="number" /></div>
+    </div>
+    <div class="row">
+      <label class="pill" style="cursor:pointer"><input id="countWeekends" type="checkbox" style="margin-right:8px" />Conta anche weekend</label>
+      <label class="pill" style="cursor:pointer"><input id="countHolidays" type="checkbox" style="margin-right:8px" />Conta anche festività nazionali</label>
+    </div>
+    <div class="muted small" style="margin-top:12px">Festività nazionali + Pasqua/Pasquetta sono calcolate automaticamente.</div>
+  </dialog>
+
+  <dialog id="dlgEvents">
+    <div class="row" style="justify-content:space-between;align-items:baseline">
+      <div style="font-weight:900;font-size:18px">Eventi (Fiere / Inventari / Chiusure)</div>
+      <button id="closeEvents">Chiudi</button>
+    </div>
+    <div class="muted small" style="margin-top:4px">Gli eventi appaiono nel calendario: barra colorata (range) + etichetta (giorno di inizio).</div>
+    <hr class="sep" />
+
+    <div class="row" style="margin-bottom:12px">
+      <div class="field"><label>Tipo</label>
+        <select id="evType">
+          <option value="FIERA">Fiera</option>
+          <option value="INVENTARIO">Inventario</option>
+          <option value="CHIUSURA">Chiusura</option>
+          <option value="ALTRO">Altro</option>
+        </select>
+      </div>
+      <div class="field" style="min-width:240px"><label>Titolo</label><input id="evTitle" placeholder="Es. Fiera Cannes" /></div>
+      <div class="field"><label>Luogo (opz.)</label><input id="evLocation" placeholder="Città" /></div>
+    </div>
+
+    <div class="row" style="margin-bottom:12px">
+      <div class="field"><label>Dal</label><input id="evStart" type="date" /></div>
+      <div class="field"><label>Al</label><input id="evEnd" type="date" /></div>
+      <div class="field" style="flex:1 1 260px; min-width:260px"><label>Note (opz.)</label><input id="evNote" placeholder="Note" /></div>
+      <button class="primary" id="addEvent">Aggiungi</button>
+    </div>
+
+    <hr class="sep" />
+    <div id="eventsList" class="list"></div>
+  </dialog>
+
+  <dialog id="dlgBackup">
+    <div class="row" style="justify-content:space-between;align-items:baseline">
+      <div style="font-weight:900;font-size:18px">Backup</div>
+      <button id="closeBackup">Chiudi</button>
+    </div>
+    <hr class="sep" />
+    <div class="row" style="margin-bottom:12px">
+      <button class="primary" id="exportJson">Export JSON</button>
+      <label class="pill" style="cursor:pointer"><input id="importFile" type="file" accept="application/json" style="display:none" />Import JSON</label>
+      <button class="danger" id="wipeAll">Cancella dati locali</button>
+    </div>
+    <div class="muted small" id="backupStatus">I dati sono salvati localmente sul dispositivo (IndexedDB).</div>
+  </dialog>
+
+  <script type="module">
+    if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+
+    const pad2 = (n) => String(n).padStart(2,'0');
+    const ymd = (y,m1,d) => `${y}-${pad2(m1)}-${pad2(d)}`;
+    const parseYMD = (s) => { const [y,m,d] = s.split('-').map(Number); return {y,m,d}; };
+    const toDateUTC = (s) => { const {y,m,d} = parseYMD(s); return new Date(Date.UTC(y,m-1,d)); };
+    const isWeekendUTC = (d) => { const wd = d.getUTCDay(); return wd===0 || wd===6; };
+    const addDaysUTC = (d, delta) => { const nd = new Date(d.getTime()); nd.setUTCDate(nd.getUTCDate()+delta); return nd; };
+    const daysInMonth = (y,m1) => new Date(Date.UTC(y,m1,0)).getUTCDate();
+
+    function easterSundayUTC(year){
+      const a = year % 19, b = Math.floor(year/100), c = year % 100;
+      const d = Math.floor(b/4), e = b % 4, f = Math.floor((b+8)/25);
+      const g = Math.floor((b-f+1)/3);
+      const h = (19*a + b - d - g + 15) % 30;
+      const i = Math.floor(c/4), k = c % 4;
+      const l = (32 + 2*e + 2*i - h - k) % 7;
+      const m = Math.floor((a + 11*h + 22*l) / 451);
+      const month = Math.floor((h + l - 7*m + 114) / 31);
+      const day = ((h + l - 7*m + 114) % 31) + 1;
+      return new Date(Date.UTC(year, month-1, day));
+    }
+    function italianNationalHolidays(year){
+      const map = new Map();
+      const fixed = [
+        [1,1,'Capodanno'], [1,6,'Epifania'], [4,25,'Liberazione'], [5,1,'Lavoro'],
+        [6,2,'Repubblica'], [8,15,'Ferragosto'], [11,1,'Tutti i Santi'],
+        [12,8,'Immacolata'], [12,25,'Natale'], [12,26,'S. Stefano'],
+      ];
+      for (const [m,d,label] of fixed) map.set(ymd(year,m,d), label);
+      const easter = easterSundayUTC(year);
+      map.set(ymd(year, easter.getUTCMonth()+1, easter.getUTCDate()), 'Pasqua');
+      const easterMon = addDaysUTC(easter, 1);
+      map.set(ymd(year, easterMon.getUTCMonth()+1, easterMon.getUTCDate()), 'Pasquetta');
+      return map;
+    }
+    function eventColor(type){
+      const css = getComputedStyle(document.documentElement);
+      switch(type){
+        case 'FIERA': return css.getPropertyValue('--event-fair').trim();
+        case 'INVENTARIO': return css.getPropertyValue('--event-inv').trim();
+        case 'CHIUSURA': return css.getPropertyValue('--event-closure').trim();
+        default: return css.getPropertyValue('--event-other').trim();
+      }
+    }
+
+    const DB_NAME = 'schema-ferie-db', DB_VER = 1;
+    function openDB(){
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VER);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'year' });
+          if (!db.objectStoreNames.contains('events')) db.createObjectStore('events', { keyPath: 'id' });
+          if (!db.objectStoreNames.contains('selections')) db.createObjectStore('selections', { keyPath: 'key' });
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+    async function tx(storeNames, mode, fn){
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const t = db.transaction(storeNames, mode);
+        const stores = Object.fromEntries(storeNames.map(n => [n, t.objectStore(n)]));
+        Promise.resolve(fn(stores)).then((res) => {
+          t.oncomplete = () => resolve(res);
+          t.onerror = () => reject(t.error);
+          t.onabort = () => reject(t.error);
+        }).catch(reject);
+      });
+    }
+    const idb = {
+      async get(store, key){
+        return tx([store], 'readonly', ({[store]: s}) => new Promise((resolve, reject) => {
+          const r = s.get(key); r.onsuccess = () => resolve(r.result || null); r.onerror = () => reject(r.error);
+        }));
+      },
+      async put(store, value){
+        return tx([store], 'readwrite', ({[store]: s}) => new Promise((resolve, reject) => {
+          const r = s.put(value); r.onsuccess = () => resolve(true); r.onerror = () => reject(r.error);
+        }));
+      },
+      async del(store, key){
+        return tx([store], 'readwrite', ({[store]: s}) => new Promise((resolve, reject) => {
+          const r = s.delete(key); r.onsuccess = () => resolve(true); r.onerror = () => reject(r.error);
+        }));
+      },
+      async all(store){
+        return tx([store], 'readonly', ({[store]: s}) => new Promise((resolve, reject) => {
+          const r = s.getAll(); r.onsuccess = () => resolve(r.result || []); r.onerror = () => reject(r.error);
+        }));
+      },
+      async clear(store){
+        return tx([store], 'readwrite', ({[store]: s}) => new Promise((resolve, reject) => {
+          const r = s.clear(); r.onsuccess = () => resolve(true); r.onerror = () => reject(r.error);
+        }));
+      }
+    };
+
+    const MONTHS = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+    let year = new Date().getFullYear();
+    let settings = null, events = [], selections = [], holidayMap = new Map();
+    const $ = (id) => document.getElementById(id);
+
+    const keySel = (y, date, kind) => `${y}|${date}|${kind}`;
+    const uid = () => Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+
+    function selectionFor(dateYMD){
+      const ferie = selections.find(s => s.year === year && s.date === dateYMD && s.kind === 'FERIE');
+      const rol = selections.find(s => s.year === year && s.date === dateYMD && s.kind === 'ROL');
+      return { ferie, rol };
+    }
+    function nextState(ferie, rol){
+      if (!ferie && !rol) return { kind:'FERIE', amount:1 };
+      if (ferie?.amount === 1) return { kind:'FERIE', amount:0.5 };
+      if (ferie?.amount === 0.5) return { kind:'ROL', amount:1 };
+      if (rol?.amount === 1) return { kind:'ROL', amount:0.5 };
+      return null;
+    }
+    function isCountableDay(dateYMD){
+      const d = toDateUTC(dateYMD);
+      if (!settings.countWeekends && isWeekendUTC(d)) return false;
+      if (!settings.countHolidays && holidayMap.has(dateYMD)) return false;
+      return true;
+    }
+    function sumKind(kind){
+      let total = 0;
+      for (const s of selections){
+        if (s.year !== year || s.kind !== kind) continue;
+        if (isCountableDay(s.date)) total += s.amount;
+      }
+      return total;
+    }
+    function eventsForDay(dateYMD){
+      const t = toDateUTC(dateYMD).getTime();
+      return events.filter(ev => {
+        const a = toDateUTC(ev.start).getTime();
+        const b = toDateUTC(ev.end).getTime();
+        return t >= a && t <= b;
+      });
+    }
+    function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+    function renderGrid(){
+      const wrap = document.createElement('div');
+      wrap.className = 'yearWrap';
+      const table = document.createElement('table');
+      table.className = 'year';
+
+      const thead = document.createElement('thead');
+      const trh = document.createElement('tr');
+      const th0 = document.createElement('th'); th0.textContent = 'Giorno'; trh.appendChild(th0);
+      for (const m of MONTHS){ const th = document.createElement('th'); th.textContent = m; trh.appendChild(th); }
+      thead.appendChild(trh); table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      for (let day = 1; day <= 31; day++){
+        const tr = document.createElement('tr');
+        const tdDay = document.createElement('td'); tdDay.textContent = String(day); tr.appendChild(tdDay);
+
+        for (let mi = 1; mi <= 12; mi++){
+          const td = document.createElement('td');
+          const dim = daysInMonth(year, mi);
+          const valid = day <= dim;
+          const cell = document.createElement('div');
+          cell.className = 'dayCell' + (!valid ? ' disabled' : '');
+
+          if (valid){
+            const date = ymd(year, mi, day);
+            const d = toDateUTC(date);
+            if (isWeekendUTC(d)) cell.classList.add('bg-weekend');
+            if (holidayMap.has(date)) cell.classList.add('bg-holiday');
+
+            const dayEvents = eventsForDay(date);
+            const stripe = document.createElement('div');
+            stripe.className = 'eventStripe';
+            stripe.style.borderTopColor = dayEvents.length ? eventColor(dayEvents[0].type) : 'transparent';
+            cell.appendChild(stripe);
+
+            if (dayEvents.length){
+              const dots = document.createElement('div'); dots.className = 'eventDots';
+              for (const ev of dayEvents.slice(0,3)){
+                const dot = document.createElement('span');
+                dot.className = 'dotMini';
+                dot.style.background = eventColor(ev.type);
+                dots.appendChild(dot);
+              }
+              cell.appendChild(dots);
+
+              const labelEv = dayEvents.find(ev => ev.start === date);
+              if (labelEv){
+                const lab = document.createElement('div');
+                lab.className = 'eventLabel';
+                lab.style.borderColor = eventColor(labelEv.type);
+                lab.textContent = labelEv.title;
+                cell.appendChild(lab);
+              }
+            }
+
+            const { ferie, rol } = selectionFor(date);
+            const center = document.createElement('div');
+            center.style.display = 'flex'; center.style.alignItems = 'center'; center.style.justifyContent = 'center'; center.style.height = '100%';
+
+            if (ferie){
+              const sp = document.createElement('span');
+              sp.className = ferie.amount === 0.5 ? 'sel sub' : 'sel';
+              sp.textContent = ferie.amount === 0.5 ? 'X½' : 'X';
+              center.appendChild(sp);
+            } else if (rol){
+              const sp = document.createElement('span');
+              sp.className = rol.amount === 0.5 ? 'sel sub' : 'sel';
+              sp.textContent = rol.amount === 0.5 ? 'R½' : 'R';
+              center.appendChild(sp);
+            }
+            cell.appendChild(center);
+
+            const tips = [];
+            if (holidayMap.has(date)) tips.push('Festività: ' + holidayMap.get(date));
+            if (dayEvents.length) tips.push(...dayEvents.map(e => `${e.type}: ${e.title}${e.location ? ' ('+e.location+')' : ''}`));
+            if (ferie) tips.push('Ferie: ' + ferie.amount);
+            if (rol) tips.push('ROL: ' + rol.amount);
+            cell.title = tips.join('\n');
+
+            cell.addEventListener('click', async () => {
+              const cur = selectionFor(date);
+              const next = nextState(cur.ferie, cur.rol);
+              if (cur.ferie) await idb.del('selections', keySel(year, date, 'FERIE'));
+              if (cur.rol) await idb.del('selections', keySel(year, date, 'ROL'));
+              if (next) await idb.put('selections', { key: keySel(year,date,next.kind), year, date, kind: next.kind, amount: next.amount });
+              await loadYear(); renderAll();
+            });
+          }
+
+          td.appendChild(cell); tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+      table.appendChild(tbody); wrap.appendChild(table);
+      $('grid').innerHTML = ''; $('grid').appendChild(wrap);
+    }
+
+    function renderTotals(){
+      const ferieUsed = sumKind('FERIE'), rolUsed = sumKind('ROL');
+      const ferieRem = settings.ferieTotal - ferieUsed;
+      const rolRem = settings.rolTotal - rolUsed;
+
+      $('totals').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+          <div style="font-weight:900;font-size:16px">Totali</div>
+          <div class="muted small">${settings.countWeekends ? 'incl. weekend' : 'escl. weekend'} • ${settings.countHolidays ? 'incl. festivi' : 'escl. festivi'}</div>
+        </div>
+        <hr class="sep" />
+        <div class="row">
+          <span class="pill"><b>Ferie</b> disp.: ${settings.ferieTotal}</span>
+          <span class="pill">usate: ${ferieUsed}</span>
+          <span class="pill">residue: <b style="color:${ferieRem<0?'var(--danger)':'var(--ok)'}">${ferieRem}</b></span>
+        </div>
+        <div style="height:10px"></div>
+        <div class="row">
+          <span class="pill"><b>ROL</b> disp.: ${settings.rolTotal}</span>
+          <span class="pill">usate: ${rolUsed}</span>
+          <span class="pill">residue: <b style="color:${rolRem<0?'var(--danger)':'var(--ok)'}">${rolRem}</b></span>
+        </div>
+      `;
+    }
+
+    function renderEventsPreview(){
+      if (!events.length){
+        $('eventsPreview').innerHTML = `<div class="muted small">Nessun evento inserito per questo anno. Premi “Eventi”.</div>`;
+        return;
+      }
+      const sorted = [...events].sort((a,b)=> a.start.localeCompare(b.start)).slice(0,10);
+      const html = sorted.map(ev => `
+        <div class="pill" style="justify-content:space-between">
+          <span><b>${ev.type}</b> ${escapeHtml(ev.title)}</span>
+          <span class="muted">${ev.start}→${ev.end}</span>
+        </div>
+      `).join('');
+      $('eventsPreview').innerHTML = `
+        <div style="font-weight:900;font-size:16px;margin-bottom:8px">Eventi (lista)</div>
+        <div class="muted small">Controllo rapido.</div>
+        <hr class="sep" />
+        <div class="list">${html}</div>
+      `;
+    }
+
+    function renderAll(){
+      $('titleYear').textContent = 'Anno ' + year;
+      renderGrid(); renderTotals(); renderEventsPreview();
+    }
+
+    // dialogs
+    function fillSettingsDialog(){
+      $('ferieTotal').value = String(settings.ferieTotal ?? 0);
+      $('rolTotal').value = String(settings.rolTotal ?? 0);
+      $('countWeekends').checked = !!settings.countWeekends;
+      $('countHolidays').checked = !!settings.countHolidays;
+    }
+    async function saveSettingsFromDialog(){
+      settings.ferieTotal = Number($('ferieTotal').value || 0);
+      settings.rolTotal = Number($('rolTotal').value || 0);
+      settings.countWeekends = $('countWeekends').checked;
+      settings.countHolidays = $('countHolidays').checked;
+      await idb.put('settings', settings);
+      holidayMap = italianNationalHolidays(year);
+      renderAll();
+    }
+    function fillEventsDialog(){
+      $('evStart').value = ymd(year,1,1);
+      $('evEnd').value = ymd(year,1,1);
+      $('evType').value = 'FIERA';
+      $('evTitle').value = '';
+      $('evLocation').value = '';
+      $('evNote').value = '';
+      renderEventsList();
+    }
+    function renderEventsList(){
+      const list = $('eventsList');
+      list.innerHTML = '';
+      const sorted = [...events].sort((a,b)=> a.start.localeCompare(b.start));
+      if (!sorted.length){
+        list.innerHTML = `<div class="muted small">Nessun evento per questo anno.</div>`;
+        return;
+      }
+      for (const ev of sorted){
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <div>
+            <b>${ev.type} — ${escapeHtml(ev.title)}</b>
+            <div class="muted small">${ev.start} → ${ev.end}${ev.location ? ' • ' + escapeHtml(ev.location) : ''}</div>
+            ${ev.note ? `<div class="muted small" style="margin-top:6px">${escapeHtml(ev.note)}</div>` : ''}
+          </div>
+        `;
+        const btn = document.createElement('button');
+        btn.className = 'danger';
+        btn.textContent = 'Elimina';
+        btn.addEventListener('click', async () => {
+          await idb.del('events', ev.id);
+          await loadYear(); renderAll(); renderEventsList(); renderEventsPreview();
+        });
+        div.appendChild(btn);
+        list.appendChild(div);
+      }
+    }
+
+    // backup
+    async function exportJSON(){
+      const settingsAll = await idb.all('settings');
+      const eventsAll = await idb.all('events');
+      const selectionsAll = await idb.all('selections');
+      const blob = { version: 1, exportedAt: new Date().toISOString(), settings: settingsAll, events: eventsAll, selections: selectionsAll };
+      const data = new Blob([JSON.stringify(blob, null, 2)], { type:'application/json' });
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `schema-ferie-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      $('backupStatus').textContent = 'Export completato.';
+    }
+    async function importJSON(file){
+      const txt = await file.text();
+      const parsed = JSON.parse(txt);
+      if (!parsed || parsed.version !== 1) throw new Error('Formato backup non riconosciuto');
+      await tx(['settings','events','selections'], 'readwrite', async (s) => {
+        const clear = (store) => new Promise((res, rej) => { const r = store.clear(); r.onsuccess=()=>res(); r.onerror=()=>rej(r.error); });
+        await clear(s.settings); await clear(s.events); await clear(s.selections);
+
+        const putMany = (store, arr) => new Promise((res, rej) => {
+          if (!arr?.length) return res();
+          let left = arr.length;
+          for (const v of arr){
+            const r = store.put(v);
+            r.onsuccess = () => { left--; if (left===0) res(); };
+            r.onerror = () => rej(r.error);
+          }
+        });
+
+        await putMany(s.settings, parsed.settings || []);
+        await putMany(s.events, parsed.events || []);
+        await putMany(s.selections, parsed.selections || []);
+      });
+      $('backupStatus').textContent = 'Import completato. Ricarica se non vedi subito.';
+      await loadYear(); renderAll();
+    }
+    async function wipeAll(){
+      if (!confirm('Vuoi davvero cancellare TUTTI i dati locali?')) return;
+      await idb.clear('settings'); await idb.clear('events'); await idb.clear('selections');
+      $('backupStatus').textContent = 'Dati cancellati.';
+      await loadYear(); renderAll();
+    }
+
+    async function loadYear(){
+      settings = await idb.get('settings', year);
+      if (!settings){
+        settings = { year, ferieTotal: 0, rolTotal: 0, countWeekends: false, countHolidays: false };
+        await idb.put('settings', settings);
+      }
+      const allEvents = await idb.all('events');
+      events = allEvents.filter(e => e.year === year);
+      const allSel = await idb.all('selections');
+      selections = allSel.filter(s => s.year === year);
+      holidayMap = italianNationalHolidays(year);
+    }
+
+    // wire up
+    $('yearInput').value = String(year);
+    $('yearInput').addEventListener('change', async (e) => { year = Number(e.target.value); await loadYear(); renderAll(); });
+    $('btnRefresh').addEventListener('click', async () => { await loadYear(); renderAll(); });
+
+    const dlgSettings = $('dlgSettings');
+    $('btnSettings').addEventListener('click', () => { fillSettingsDialog(); dlgSettings.showModal(); });
+    $('closeSettings').addEventListener('click', () => dlgSettings.close());
+    ['ferieTotal','rolTotal','countWeekends','countHolidays'].forEach(id => $(id).addEventListener('change', saveSettingsFromDialog));
+
+    const dlgEvents = $('dlgEvents');
+    $('btnEvents').addEventListener('click', () => { fillEventsDialog(); dlgEvents.showModal(); });
+    $('closeEvents').addEventListener('click', () => dlgEvents.close());
+    $('addEvent').addEventListener('click', async () => {
+      const type = $('evType').value;
+      const title = $('evTitle').value.trim();
+      if (!title) return alert('Inserisci un titolo');
+      const start = $('evStart').value;
+      const end = $('evEnd').value;
+      const location = $('evLocation').value.trim();
+      const note = $('evNote').value.trim();
+      const ev = { id: uid(), year, type, title, start, end, location: location || undefined, note: note || undefined };
+      await idb.put('events', ev);
+      await loadYear(); renderAll(); renderEventsList(); renderEventsPreview();
+      $('evTitle').value=''; $('evLocation').value=''; $('evNote').value='';
+    });
+
+    const dlgBackup = $('dlgBackup');
+    $('btnBackup').addEventListener('click', () => { $('backupStatus').textContent = 'I dati sono salvati localmente sul dispositivo (IndexedDB).'; dlgBackup.showModal(); });
+    $('closeBackup').addEventListener('click', () => dlgBackup.close());
+    $('exportJson').addEventListener('click', exportJSON);
+    $('importFile').addEventListener('change', (e) => {
+      const f = e.target.files?.[0];
+      if (!f) return;
+      importJSON(f).catch(err => $('backupStatus').textContent = String(err?.message || err));
+      e.target.value = '';
+    });
+    $('wipeAll').addEventListener('click', wipeAll);
+
+    await loadYear();
+    renderAll();
+  </script>
+</body>
 </html>
