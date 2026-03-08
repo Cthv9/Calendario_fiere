@@ -1,0 +1,17 @@
+{
+  "name": "Schema Ferie",
+  "short_name": "Ferie",
+  "description": "Calendario ferie/ROL con eventi (fiere, inventari, chiusure) e contatori dinamici.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
