@@ -41,7 +41,7 @@
       color: var(--text);
     }
     button,input,select,textarea{font:inherit}
-    .container{width:min(1680px,99vw);margin:12px auto 24px}
+    .container{width:min(1680px,99vw);margin:6px auto 10px}
 
     .header{
       position:sticky;top:0;z-index:10;
@@ -52,7 +52,7 @@
     .headerInner{
       width:min(1680px,99vw);
       margin:0 auto;
-      padding:10px 14px;
+      padding:6px 10px;
       display:flex;align-items:center;justify-content:space-between;gap:12px;
     }
     .brand{
@@ -63,7 +63,7 @@
       font-family: Fraunces, Inter, ui-sans-serif, system-ui;
       font-weight: 700;
       letter-spacing: .2px;
-      font-size: 20px;
+      font-size: 16px;
       line-height: 1;
     }
     .brandSub{
@@ -73,7 +73,7 @@
       margin-left: 2px;
     }
 
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
     .field{display:flex;flex-direction:column;gap:6px;min-width:120px}
     label{color:var(--muted);font-size:12px}
     input,select,textarea{
@@ -91,10 +91,10 @@
     button.danger{border-color: rgba(220,38,38,.55); box-shadow: 0 0 0 3px rgba(220,38,38,.10);}
     .pill{
       display:inline-flex;align-items:center;gap:8px;
-      padding:6px 10px;border-radius:999px;
+      padding:4px 8px;border-radius:999px;
       border:1px solid var(--border2);
       background:#fff;
-      font-size:12px;
+      font-size:11px;
     }
     .muted{color:var(--muted)}
     .small{font-size:12px}
@@ -103,7 +103,7 @@
       border:1px solid var(--border2);
       border-radius:14px;
       background:#fff;
-      padding:12px;
+      padding:8px;
       box-shadow: var(--shadow);
     }
 
@@ -160,7 +160,7 @@
       border-bottom:1px solid var(--border2);
       border-right:1px solid var(--border2);
       padding:0;text-align:center;vertical-align:middle;
-      height:26px;
+      height:22px;
     }
     .year td{ position:relative; }
 
@@ -182,29 +182,40 @@
 .year th{
       position:sticky;top:0;z-index:2;
       background:#fff;
-      font-size:12px;color:var(--muted);height:30px;
+      font-size:10px;color:var(--muted);height:24px;
+    }
+    .year th.hover-month{
+      background: rgba(29,78,216,.16);
+      color: var(--text);
+      font-weight: 800;
     }
     .year th:first-child{left:0;z-index:3;}
     .year td:first-child{
       position:sticky;left:0;z-index:1;
       background:#fff;
       color:var(--muted);
-      font-size:12px;width:56px;
+      font-size:10px;width:46px;
+    }
+    .year td.day-label.hover-day{
+      background: rgba(29,78,216,.16);
+      color: var(--text);
+      font-weight: 800;
     }
 
     /* color fills the full td now */
     /* selection overlays: fill whole cell (keeps weekend/holiday tint under) */
 td.sel-ferie::after{content:'';position:absolute;inset:0;background:rgba(34,197,94,.22);pointer-events:none;}
     td.sel-rol::after{content:'';position:absolute;inset:0;background:rgba(234,179,8,.22);pointer-events:none;}
+    td.sel-aziendale::after{content:'';position:absolute;inset:0;background:rgba(250,204,21,.30);pointer-events:none;}
 
 /* holiday icon (only) */
 .holidayIcon{
   position:absolute;
   bottom:2px; right:3px;
-  width:18px; height:18px;
+  width:14px; height:14px;
   border-radius:999px;
   display:flex; align-items:center; justify-content:center;
-  font-size:12px;
+  font-size:9px;
   line-height:1;
   background: rgba(255,255,255,.8);
   border:1px dashed rgba(15,23,42,.28);
@@ -213,7 +224,7 @@ td.sel-ferie::after{content:'';position:absolute;inset:0;background:rgba(34,197,
 }
 
     .dayCell{
-      min-height:26px;
+      min-height:22px;
       width:100%;
       height:100%;
       position:relative;
@@ -234,14 +245,14 @@ td.sel-ferie::after{content:'';position:absolute;inset:0;background:rgba(34,197,
     .eventStripe{
       position:absolute; inset:0;
       pointer-events:none;
-      border-top:4px solid transparent;
+      border-top:3px solid transparent;
     }
     .eventLabel{
       position:absolute;
       bottom:2px; left:3px;
-      max-width: 86px;
+      max-width: 64px;
       padding:1px 5px;
-      font-size:10px;
+      font-size:8px;
       line-height:1.2;
       border-radius:8px;
       border:1px solid rgba(15,23,42,.18);
@@ -258,16 +269,16 @@ td.sel-ferie::after{content:'';position:absolute;inset:0;background:rgba(34,197,
       pointer-events:none;
     }
     .dotMini{
-      width:9px;height:9px;border-radius:999px;
+      width:7px;height:7px;border-radius:999px;
       border:1px solid rgba(15,23,42,.25);
     }
 
     /* Bottom sections */
     .bottomArea{
-      margin-top:14px;
+      margin-top:6px;
       display:grid;
       grid-template-columns: 1fr;
-      gap:14px;
+      gap:6px;
     }
     @media (min-width: 980px){
       .bottomArea{ grid-template-columns: 1.2fr .8fr; }
@@ -334,6 +345,107 @@ button:focus-visible{
 .dialogActions{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
 .dialogActions button{padding:10px 12px;}
 
+    #eventsPreview{
+      margin-top:8px !important;
+      max-height:130px;
+      overflow:auto;
+    }
+
+    @media (min-width: 980px){
+      body{
+        height:100vh;
+        overflow:hidden;
+      }
+      .container{
+        margin:4px auto 6px;
+        height:calc(100vh - 52px);
+        display:grid;
+        grid-template-rows:minmax(0,1fr) auto auto;
+        gap:6px;
+        overflow:hidden;
+      }
+      .container > .panel:first-child{
+        display:flex;
+        flex-direction:column;
+        min-height:0;
+        padding:6px;
+      }
+      #grid{
+        flex:1;
+        min-height:0;
+      }
+      .yearWrap{
+        height:100%;
+        overflow:hidden;
+        --cal-head-h: 20px;
+        --cal-row-h: clamp(17px, calc((100% - var(--cal-head-h)) / 31), 24px);
+        --cal-day-col-w: clamp(24px, 2.7vw, 34px);
+      }
+      table.year{
+        min-width:0;
+        table-layout:fixed;
+        height:100%;
+      }
+      .year th,.year td{
+        height:var(--cal-row-h);
+      }
+      .year thead tr{
+        height:var(--cal-head-h);
+      }
+      .year tbody tr{
+        height:calc((100% - var(--cal-head-h)) / 31);
+      }
+      .year th{
+        height:var(--cal-head-h);
+        font-size:8px;
+      }
+      .year td:first-child{
+        width:var(--cal-day-col-w);
+        font-size:8px;
+      }
+      .dayCell{
+        min-height:var(--cal-row-h);
+      }
+      .sel{
+        font-size:11px;
+      }
+      .sel.sub{
+        font-size:10px;
+      }
+      .eventDots{
+        top:2px;
+        left:2px;
+        gap:2px;
+      }
+      .dotMini{
+        width:6px;
+        height:6px;
+      }
+      .bottomArea{
+        margin-top:0;
+      }
+      .calendarHint{
+        display:none;
+      }
+    }
+
+    @media (min-width: 980px) and (max-height: 860px){
+      .brandSub{
+        display:none;
+      }
+      .yearWrap{
+        --cal-head-h: 18px;
+        --cal-row-h: clamp(15px, calc((100% - var(--cal-head-h)) / 31), 20px);
+      }
+      .eventLabel,
+      .holidayIcon{
+        display:none;
+      }
+      #eventsPreview{
+        max-height:90px;
+      }
+    }
+
 </style>
 </head>
 <body>
@@ -390,7 +502,7 @@ button:focus-visible{
       <div class="row" style="justify-content:space-between;align-items:baseline;margin-bottom:8px">
         <div>
           <div id="titleYear" style="font-weight:900;font-size:18px">Anno</div>
-          <div class="muted small">Click su un giorno → scegli cosa inserire (popup). Festività: anche in cella (testo breve).</div>
+          <div class="muted small calendarHint">Click su un giorno → scegli cosa inserire (popup). Festività: anche in cella (testo breve).</div>
         </div>
       </div>
       <div id="grid"></div>
@@ -403,6 +515,7 @@ button:focus-visible{
         <div style="font-weight:900;font-size:16px;margin-bottom:8px">Legenda</div>
         <div class="row">
           <span class="pill"><b>X</b> Ferie</span>
+          <span class="pill"><b>A</b> Chiusura aziendale</span>
           <span class="pill"><b>R</b> ROL</span>
           <span class="pill"><b>½</b> mezza</span>
           <span class="pill"><b>Ferie</b> 1 giorno = <b>1.2</b></span>
@@ -428,6 +541,8 @@ button:focus-visible{
     <div class="popGrid">
       <button class="popBtn" data-action="FERIE_1"><b>Ferie</b><small>Intera (1.2)</small></button>
       <button class="popBtn" data-action="FERIE_05"><b>Ferie</b><small>Mezza (0.6)</small></button>
+      <button class="popBtn" data-action="AZIENDALE_1"><b>Chiusura aziendale</b><small>Intera (1.2)</small></button>
+      <button class="popBtn" data-action="AZIENDALE_05"><b>Chiusura aziendale</b><small>Mezza (0.6)</small></button>
       <button class="popBtn" data-action="ROL_1"><b>ROL</b><small>Intera (1.0)</small></button>
       <button class="popBtn" data-action="ROL_05"><b>ROL</b><small>Mezza (0.5)</small></button>
       <button class="popBtn" data-action="CLEAR"><b>Cancella</b><small>Rimuovi segno</small></button>
@@ -616,16 +731,18 @@ button:focus-visible{
 
     function selectionFor(dateYMD){
       const ferie = selections.find(s => s.year === year && s.date === dateYMD && s.kind === 'FERIE');
+      const aziendale = selections.find(s => s.year === year && s.date === dateYMD && s.kind === 'AZIENDALE');
       const rol = selections.find(s => s.year === year && s.date === dateYMD && s.kind === 'ROL');
-      return { ferie, rol };
+      return { ferie, aziendale, rol };
     }
 
     const FERIE_MULT = 1.2;
     function sumKind(kind){
       let total = 0;
       for (const s of selections){
-        if (s.year !== year || s.kind !== kind) continue;
-        if (kind === 'FERIE') total += (s.amount * FERIE_MULT);
+        if (s.year !== year) continue;
+        if (kind === 'FERIE' && (s.kind === 'FERIE' || s.kind === 'AZIENDALE')) total += (s.amount * FERIE_MULT);
+        else if (s.kind !== kind) continue;
         else total += s.amount;
       }
       return Math.round(total * 10) / 10;
@@ -685,10 +802,13 @@ function holidayEmoji(name){
       const date = activeDate;
 
       await idb.del('selections', keySel(year, date, 'FERIE'));
+      await idb.del('selections', keySel(year, date, 'AZIENDALE'));
       await idb.del('selections', keySel(year, date, 'ROL'));
 
       if (action === 'FERIE_1') await idb.put('selections', { key: keySel(year,date,'FERIE'), year, date, kind:'FERIE', amount: 1 });
       if (action === 'FERIE_05') await idb.put('selections', { key: keySel(year,date,'FERIE'), year, date, kind:'FERIE', amount: 0.5 });
+      if (action === 'AZIENDALE_1') await idb.put('selections', { key: keySel(year,date,'AZIENDALE'), year, date, kind:'AZIENDALE', amount: 1 });
+      if (action === 'AZIENDALE_05') await idb.put('selections', { key: keySel(year,date,'AZIENDALE'), year, date, kind:'AZIENDALE', amount: 0.5 });
       if (action === 'ROL_1') await idb.put('selections', { key: keySel(year,date,'ROL'), year, date, kind:'ROL', amount: 1 });
       if (action === 'ROL_05') await idb.put('selections', { key: keySel(year,date,'ROL'), year, date, kind:'ROL', amount: 0.5 });
 
@@ -706,16 +826,27 @@ function holidayEmoji(name){
       const thead = document.createElement('thead');
       const trh = document.createElement('tr');
       const th0 = document.createElement('th'); th0.textContent = 'Giorno'; trh.appendChild(th0);
-      for (const m of MONTHS){ const th = document.createElement('th'); th.textContent = m; trh.appendChild(th); }
+      for (let mi = 1; mi <= MONTHS.length; mi++){
+        const th = document.createElement('th');
+        th.textContent = MONTHS[mi - 1];
+        th.dataset.month = String(mi);
+        trh.appendChild(th);
+      }
       thead.appendChild(trh); table.appendChild(thead);
 
       const tbody = document.createElement('tbody');
       for (let day = 1; day <= 31; day++){
         const tr = document.createElement('tr');
-        const tdDay = document.createElement('td'); tdDay.textContent = String(day); tr.appendChild(tdDay);
+        const tdDay = document.createElement('td');
+        tdDay.textContent = String(day);
+        tdDay.className = 'day-label';
+        tdDay.dataset.day = String(day);
+        tr.appendChild(tdDay);
 
         for (let mi = 1; mi <= 12; mi++){
           const td = document.createElement('td');
+          td.dataset.day = String(day);
+          td.dataset.month = String(mi);
           const dim = daysInMonth(year, mi);
           const valid = day <= dim;
 
@@ -763,11 +894,17 @@ function holidayEmoji(name){
               cell.appendChild(hi);
             }
 
-            const { ferie, rol } = selectionFor(date);
+            const { ferie, aziendale, rol } = selectionFor(date);
             if (ferie) td.classList.add('sel-ferie');
+            if (aziendale) td.classList.add('sel-aziendale');
             if (rol) td.classList.add('sel-rol');
 
-            if (ferie){
+            if (aziendale){
+              const sp = document.createElement('span');
+              sp.className = aziendale.amount === 0.5 ? 'sel sub' : 'sel';
+              sp.textContent = aziendale.amount === 0.5 ? 'A½' : 'A';
+              cell.appendChild(sp);
+            } else if (ferie){
               const sp = document.createElement('span');
               sp.className = ferie.amount === 0.5 ? 'sel sub' : 'sel';
               sp.textContent = ferie.amount === 0.5 ? 'X½' : 'X';
@@ -782,6 +919,7 @@ function holidayEmoji(name){
             const tips = [];
             if (holidayMap.has(date)) tips.push('Festività: ' + holidayMap.get(date));
             if (dayEvents.length) tips.push(...dayEvents.map(e => `${e.type}: ${e.title}${e.location ? ' ('+e.location+')' : ''}`));
+            if (aziendale) tips.push(`Chiusura aziendale: ${aziendale.amount} (conteggio ${Math.round(aziendale.amount*FERIE_MULT*10)/10})`);
             if (ferie) tips.push(`Ferie: ${ferie.amount} (conteggio ${Math.round(ferie.amount*FERIE_MULT*10)/10})`);
             if (rol) tips.push('ROL: ' + rol.amount);
             cell.title = tips.join('\\n');
@@ -796,6 +934,44 @@ function holidayEmoji(name){
       }
       table.appendChild(tbody);
       wrap.appendChild(table);
+
+      let hoverMonth = null;
+      let hoverDay = null;
+      const clearHover = () => {
+        if (hoverMonth){
+          const hm = table.querySelector(`thead th[data-month="${hoverMonth}"]`);
+          if (hm) hm.classList.remove('hover-month');
+        }
+        if (hoverDay){
+          const hd = table.querySelector(`tbody td.day-label[data-day="${hoverDay}"]`);
+          if (hd) hd.classList.remove('hover-day');
+        }
+        hoverMonth = null;
+        hoverDay = null;
+      };
+      const setHover = (day, month) => {
+        if (hoverDay === day && hoverMonth === month) return;
+        clearHover();
+        const hm = table.querySelector(`thead th[data-month="${month}"]`);
+        const hd = table.querySelector(`tbody td.day-label[data-day="${day}"]`);
+        if (hm) hm.classList.add('hover-month');
+        if (hd) hd.classList.add('hover-day');
+        hoverDay = day;
+        hoverMonth = month;
+      };
+
+      table.addEventListener('pointermove', (e) => {
+        const cell = e.target.closest('.dayCell');
+        if (!cell || cell.classList.contains('disabled') || !table.contains(cell)){
+          clearHover();
+          return;
+        }
+        const td = cell.closest('td[data-day][data-month]');
+        if (!td) return clearHover();
+        setHover(td.dataset.day, td.dataset.month);
+      });
+      table.addEventListener('mouseleave', clearHover);
+
       $('grid').innerHTML = '';
       $('grid').appendChild(wrap);
     }
@@ -830,7 +1006,7 @@ function holidayEmoji(name){
         $('eventsPreview').innerHTML = `<div class="muted small">Nessun evento inserito per questo anno. Apri il menu (☰) → “Eventi”.</div>`;
         return;
       }
-      const sorted = [...events].sort((a,b)=> a.start.localeCompare(b.start)).slice(0,12);
+      const sorted = [...events].sort((a,b)=> a.start.localeCompare(b.start)).slice(0,8);
       const html = sorted.map(ev => `
         <div class="pill" style="justify-content:space-between">
           <span><b>${ev.type}</b> ${escapeHtml(ev.title)}</span>
