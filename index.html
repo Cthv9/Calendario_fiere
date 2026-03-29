@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <title>Schema Ferie</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     :root{
       --bg:#ffffff;
@@ -429,6 +430,12 @@ button:focus-visible{
       }
     }
 
+    #loginOverlay{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;}
+    #loginBox{background:#fff;border:1px solid var(--border2);border-radius:16px;padding:32px 28px;box-shadow:var(--shadow);max-width:360px;width:90%;display:flex;flex-direction:column;gap:16px;}
+    #loginBox h2{margin:0;font-family:Fraunces,Inter;font-size:22px;}
+    #loginMsg{font-size:13px;color:var(--muted);min-height:18px;}
+    #syncStatus{font-size:11px;color:var(--muted);}
+
     @media (min-width: 980px) and (max-height: 860px){
       .brandSub{
         display:none;
@@ -449,6 +456,16 @@ button:focus-visible{
 </style>
 </head>
 <body>
+  <div id="loginOverlay">
+    <div id="loginBox">
+      <div class="brand"><span class="dot"></span><div class="brandTitle">Schema Ferie</div></div>
+      <p style="margin:0;color:var(--muted);font-size:13px">Accedi per sincronizzare i tuoi dati tra i dispositivi.</p>
+      <div class="field"><label>Email</label><input id="loginEmail" type="email" placeholder="nome@email.com" /></div>
+      <button class="primary" id="btnLogin">Invia link di accesso</button>
+      <div id="loginMsg"></div>
+    </div>
+  </div>
+
   <div class="header">
     <div class="headerInner">
       <div class="brand">
@@ -459,6 +476,7 @@ button:focus-visible{
         </div>
       </div>
 
+      <span id="syncStatus"></span>
       <button class="hamburger" id="btnMenu" aria-label="Apri menu">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <path d="M4 6h16"></path>
@@ -494,6 +512,7 @@ button:focus-visible{
       </div>
       <div class="drawerNote">Il calendario resta pulito: controlli qui a destra.</div>
       <div class="drawerNote" style="margin-top:10px"><b>Build:</b> v8</div><div class="drawerNote" style="margin-top:10px">Made with ❤️ by DF</div>
+      <button class="danger" id="btnLogout" style="margin-top:10px;font-size:12px">Esci (logout)</button>
     </div>
   </aside>
 
@@ -716,6 +735,12 @@ button:focus-visible{
       }
     };
 
+    // Supabase — sostituisci con i tuoi dati dal dashboard Supabase
+    const SUPABASE_URL = 'https://dekypmwalwohbgyrgbbz.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRla3lwbXdhbHdvaGJneXJnYmJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MDkzMTYsImV4cCI6MjA5MDM4NTMxNn0.iB483Opxezj8SlpY5-vo6WW3UdFlUVeU1aBJ3BYakKU';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let currentUser = null;
+
     const MONTHS = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
     let year = new Date().getFullYear();
     let settings = null, events = [], selections = [], holidayMap = new Map();
@@ -814,6 +839,7 @@ function holidayEmoji(name){
 
       await loadYear();
       renderAll();
+      syncToCloud();
       hidePopover();
     }
 
@@ -1036,6 +1062,7 @@ function holidayEmoji(name){
       settings.rolTotal = Number($('rolTotal').value || 0);
       await idb.put('settings', settings);
       renderTotals();
+      syncToCloud();
     }
 
     function fillEventsDialog(){
@@ -1071,6 +1098,7 @@ function holidayEmoji(name){
         btn.addEventListener('click', async () => {
           await idb.del('events', ev.id);
           await loadYear(); renderAll(); renderEventsList(); renderEventsPreview();
+          syncToCloud();
         });
         div.appendChild(btn);
         list.appendChild(div);
@@ -1121,12 +1149,14 @@ function holidayEmoji(name){
 
       $('backupStatus').textContent = 'Import completato.';
       await loadYear(); renderAll();
+      syncToCloud();
     }
     async function wipeAll(){
       if (!confirm('Vuoi davvero cancellare TUTTI i dati locali?')) return;
       await idb.clear('settings'); await idb.clear('events'); await idb.clear('selections');
       $('backupStatus').textContent = 'Dati cancellati.';
       await loadYear(); renderAll();
+      syncToCloud();
     }
 
     async function loadYear(){
@@ -1148,6 +1178,68 @@ function holidayEmoji(name){
       selections = allSel.filter(s => s.year === year);
 
       holidayMap = italianNationalHolidays(year);
+    }
+
+    function setSyncStatus(state){
+      const el = $('syncStatus');
+      if (!el) return;
+      if (state === 'syncing') el.textContent = '⟳ sync...';
+      else if (state === 'ok') el.textContent = '✓ sync';
+      else if (state === 'error') el.textContent = '⚠ offline';
+      else el.textContent = '';
+    }
+    function showLogin(){ $('loginOverlay').style.display = 'flex'; }
+    function showApp(){ $('loginOverlay').style.display = 'none'; }
+
+    async function syncToCloud(){
+      if (!currentUser || !navigator.onLine) return;
+      setSyncStatus('syncing');
+      try {
+        const settingsAll = await idb.all('settings');
+        const eventsAll = await idb.all('events');
+        const selectionsAll = await idb.all('selections');
+        const data = { version: 3, exportedAt: new Date().toISOString(), settings: settingsAll, events: eventsAll, selections: selectionsAll };
+        const { error } = await sb.from('user_data').upsert({ user_id: currentUser.id, data, updated_at: new Date().toISOString() });
+        if (error) throw error;
+        setSyncStatus('ok');
+      } catch(e){
+        console.warn('Sync to cloud failed:', e);
+        setSyncStatus('error');
+      }
+    }
+
+    async function syncFromCloud(){
+      if (!currentUser) return;
+      setSyncStatus('syncing');
+      try {
+        const { data: row, error } = await sb.from('user_data').select('data').eq('user_id', currentUser.id).single();
+        if (error && error.code !== 'PGRST116') throw error;
+        if (!row?.data){ setSyncStatus('ok'); return; }
+        const parsed = row.data;
+        if (!parsed || ![1,2,3].includes(parsed.version)){ setSyncStatus('ok'); return; }
+        await tx(['settings','events','selections'], 'readwrite', async (s) => {
+          const clear = (store) => new Promise((res,rej) => { const r = store.clear(); r.onsuccess=()=>res(); r.onerror=()=>rej(r.error); });
+          await clear(s.settings); await clear(s.events); await clear(s.selections);
+          const putMany = (store, arr) => new Promise((res,rej) => {
+            if (!arr?.length) return res();
+            let left = arr.length;
+            for (const v of arr){
+              if (store === s.settings){ delete v.countWeekends; delete v.countHolidays; }
+              const r = store.put(v);
+              r.onsuccess = () => { left--; if (left===0) res(); };
+              r.onerror = () => rej(r.error);
+            }
+          });
+          await putMany(s.settings, parsed.settings || []);
+          await putMany(s.events, parsed.events || []);
+          await putMany(s.selections, parsed.selections || []);
+        });
+        await loadYear(); renderAll();
+        setSyncStatus('ok');
+      } catch(e){
+        console.warn('Sync from cloud failed:', e);
+        setSyncStatus('error');
+      }
     }
 
     // Drawer interactions
@@ -1196,6 +1288,7 @@ function holidayEmoji(name){
       const ev = { id: uid(), year, type, title, start, end, location: location || undefined, note: note || undefined };
       await idb.put('events', ev);
       await loadYear(); renderAll(); renderEventsList(); renderEventsPreview();
+      syncToCloud();
       $('evTitle').value=''; $('evLocation').value=''; $('evNote').value='';
     });
 
@@ -1212,6 +1305,35 @@ function holidayEmoji(name){
       e.target.value = '';
     });
     $('wipeAll').addEventListener('click', wipeAll);
+
+    // auth
+    sb.auth.onAuthStateChange(async (event, session) => {
+      currentUser = session?.user ?? null;
+      if (currentUser) {
+        showApp();
+        await syncFromCloud();
+      } else {
+        showLogin();
+      }
+    });
+
+    $('btnLogin').addEventListener('click', async () => {
+      const email = $('loginEmail').value.trim();
+      if (!email){ $('loginMsg').textContent = 'Inserisci un indirizzo email.'; return; }
+      $('btnLogin').disabled = true;
+      $('loginMsg').textContent = 'Invio in corso...';
+      const { error } = await sb.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: location.origin + location.pathname }
+      });
+      $('btnLogin').disabled = false;
+      $('loginMsg').textContent = error ? ('Errore: ' + error.message) : 'Link inviato! Controlla la tua email e clicca il link.';
+    });
+
+    $('btnLogout').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      closeDrawer();
+    });
 
     // popover interactions
     $('popClose').addEventListener('click', hidePopover);
@@ -1235,6 +1357,9 @@ function holidayEmoji(name){
     // init
     await loadYear();
     renderAll();
+    const { data: { session: initSession } } = await sb.auth.getSession();
+    currentUser = initSession?.user ?? null;
+    if (currentUser) { showApp(); syncFromCloud(); }
   </script>
 </body>
 </html>
