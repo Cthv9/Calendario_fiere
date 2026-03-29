@@ -1,0 +1,14 @@
+{
+  "name": "schema-ferie",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "web:sync": "powershell -NoProfile -Command \"New-Item -ItemType Directory -Force web | Out-Null; Copy-Item index.html,manifest.webmanifest,sw.js,icon.svg -Destination web -Force\"",
+    "tauri:dev": "npm run web:sync && tauri dev",
+    "tauri:build": "npm run web:sync && tauri build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
+  }
+}
