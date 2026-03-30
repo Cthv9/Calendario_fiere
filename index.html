@@ -461,7 +461,8 @@ button:focus-visible{
       <div class="brand"><span class="dot"></span><div class="brandTitle">Schema Ferie</div></div>
       <p style="margin:0;color:var(--muted);font-size:13px">Accedi per sincronizzare i tuoi dati tra i dispositivi.</p>
       <div class="field"><label>Email</label><input id="loginEmail" type="email" placeholder="nome@email.com" /></div>
-      <button class="primary" id="btnLogin">Invia link di accesso</button>
+      <div class="field"><label>Password</label><input id="loginPassword" type="password" placeholder="••••••••" /></div>
+      <button class="primary" id="btnLogin">Accedi</button>
       <div id="loginMsg"></div>
     </div>
   </div>
@@ -1319,15 +1320,13 @@ function holidayEmoji(name){
 
     $('btnLogin').addEventListener('click', async () => {
       const email = $('loginEmail').value.trim();
-      if (!email){ $('loginMsg').textContent = 'Inserisci un indirizzo email.'; return; }
+      const password = $('loginPassword').value;
+      if (!email || !password){ $('loginMsg').textContent = 'Inserisci email e password.'; return; }
       $('btnLogin').disabled = true;
-      $('loginMsg').textContent = 'Invio in corso...';
-      const { error } = await sb.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: location.origin + location.pathname }
-      });
+      $('loginMsg').textContent = 'Accesso in corso...';
+      const { error } = await sb.auth.signInWithPassword({ email, password });
       $('btnLogin').disabled = false;
-      $('loginMsg').textContent = error ? ('Errore: ' + error.message) : 'Link inviato! Controlla la tua email e clicca il link.';
+      if (error) $('loginMsg').textContent = 'Credenziali non valide.';
     });
 
     $('btnLogout').addEventListener('click', async () => {
