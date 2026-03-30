@@ -26,3 +26,4 @@ desktop.ini
 # Editor
 .vscode/settings.json
 *.local
+.claude/settings.local.json
