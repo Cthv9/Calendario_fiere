@@ -1,6 +1,28 @@
+# Dependencies
 node_modules/
-src-tauri/target/
+
+# Build output
 dist/
+src-tauri/target/
+
+# Tauri source (desktop only, not needed for web deploy)
 /src-tauri
+
+# Lockfile & package meta (generated)
 package-lock.json
 package.json
+
+# Environment / secrets — MAI committare questi file
+.env
+.env.*
+.env.local
+.env.*.local
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/settings.json
+*.local

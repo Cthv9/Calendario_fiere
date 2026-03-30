@@ -1035,8 +1035,8 @@ function holidayEmoji(name){
       const sorted = [...events].sort((a,b)=> a.start.localeCompare(b.start)).slice(0,8);
       const html = sorted.map(ev => `
         <div class="pill" style="justify-content:space-between">
-          <span><b>${ev.type}</b> ${escapeHtml(ev.title)}</span>
-          <span class="muted">${ev.start}→${ev.end}</span>
+          <span><b>${escapeHtml(ev.type)}</b> ${escapeHtml(ev.title)}</span>
+          <span class="muted">${escapeHtml(ev.start)}→${escapeHtml(ev.end)}</span>
         </div>
       `).join('');
       $('eventsPreview').innerHTML = `
@@ -1087,8 +1087,8 @@ function holidayEmoji(name){
         div.className = 'item';
         div.innerHTML = `
           <div>
-            <b>${ev.type} — ${escapeHtml(ev.title)}</b>
-            <div class="muted small">${ev.start} → ${ev.end}${ev.location ? ' • ' + escapeHtml(ev.location) : ''}</div>
+            <b>${escapeHtml(ev.type)} — ${escapeHtml(ev.title)}</b>
+            <div class="muted small">${escapeHtml(ev.start)} → ${escapeHtml(ev.end)}${ev.location ? ' • ' + escapeHtml(ev.location) : ''}</div>
             ${ev.note ? `<div class="muted small" style="margin-top:6px">${escapeHtml(ev.note)}</div>` : ''}
           </div>
         `;
