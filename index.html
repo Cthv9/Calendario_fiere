@@ -1184,10 +1184,10 @@ function holidayEmoji(name){
     function setSyncStatus(state){
       const el = $('syncStatus');
       if (!el) return;
-      if (state === 'syncing') el.textContent = '⟳ sync...';
-      else if (state === 'ok') el.textContent = '✓ sync';
-      else if (state === 'error') el.textContent = '⚠ offline';
-      else el.textContent = '';
+      if (state === 'syncing') { el.textContent = '⟳ sync...'; el.style.color = 'var(--muted)'; }
+      else if (state === 'ok') { el.textContent = '✓ sync'; el.style.color = '#22c55e'; }
+      else if (state === 'error') { el.textContent = '⚠ offline'; el.style.color = '#ef4444'; }
+      else { el.textContent = ''; el.style.color = 'var(--muted)'; }
     }
     function showLogin(){ $('loginOverlay').style.display = 'flex'; }
     function showApp(){ $('loginOverlay').style.display = 'none'; }
@@ -1330,7 +1330,9 @@ function holidayEmoji(name){
     });
 
     $('btnLogout').addEventListener('click', async () => {
-      await sb.auth.signOut();
+      try { await sb.auth.signOut(); } catch(e) { console.warn('signOut error:', e); }
+      currentUser = null;
+      showLogin();
       closeDrawer();
     });
 
