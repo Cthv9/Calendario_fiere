@@ -1,4 +1,4 @@
-const CACHE = 'schema-ferie-v9';
+const CACHE = 'schema-ferie-v10';
 const ASSETS = ['./','./index.html','./manifest.webmanifest','./icon.svg'];
 
 self.addEventListener('install', (event) => {
